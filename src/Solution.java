@@ -1,6 +1,4 @@
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -23,9 +21,43 @@ class Solution {
             "Wail, pimple oil-wares wander doe wart udder pimple dum wampum toe doe. Debt's jest hormone nurture. Wan moaning, Guilty Looks dissipater murder, an win entity florist.\n" +
             "Fur lung, disk avengeress gull wetter putty yowler coils cam tore morticed ladle cordage inhibited buyer hull firmly off beers—Fodder Beer (home pimple, fur oblivious raisins, coiled \"Brewing\"), Murder Beer, an Ladle Bore Beer. Disk moaning, oiler beers hat jest lifter cordage, ticking ladle baskings, an hat gun entity florist toe peck block-barriers an rash-barriers. Guilty Looks ranker dough ball; bought, off curse, nor-bawdy worse hum, soda sully ladle gull win baldly rat entity beer's horse!";
 
+    private static BufferedReader br;
+
+    private static boolean commandMode = true;
+
+    private static String library = null;
+    private static Boolean html = null;
+    private static Integer count = null;
+    private static String outfile = null;
+    private static String mode = null;
+
+
     public static void main(String args[]) {
+
         ArrayList<String> al = new ArrayList<String>(Arrays.asList(args));
 
+        checkHelpOrVersion(al);
+
+        //Check if user wants to generate text
+        if(al.contains("--generate") || al.contains("-g")) {
+            //Command mode
+            commandMode = true;
+            processCommand(al);
+        }
+        else {
+            commandMode = false;
+            br = new BufferedReader(new InputStreamReader(System.in));
+            //Interactive mode
+            interactiveMode(al);
+            //Interactive mode
+//            processLine(al);
+//            while(true) {
+//                BufferedReader
+//            }
+        }
+    }
+
+    private static void checkHelpOrVersion(ArrayList<String> al) {
         //check if user wants help
         if(al.contains("--help") || al.contains("-h")) {
             if(al.size()!=1) {
@@ -45,30 +77,152 @@ class Solution {
                 displayVersion();
             }
         }
+    }
 
-        //Check if user wants to generate text
-        if(al.contains("--generate") || al.contains("-g")) {
-            //Command mode
-            processCommand(al);
+    private static void interactiveMode(ArrayList<String> al) {
+
+        switch (al.get(0)) {
+            case "generate" : {
+                checkHelpOrVersion(al);
+                processCommand(al);
+                break;
+            }
+            case "help" : {
+                displayHelp();
+                break;
+            }
+            case "version" : {
+                displayVersion();
+                break;
+            }
+            case "exit" : {
+                displayExitMessage();
+                break;
+            }
+            case "quit" : {
+                displayExitMessage();
+                break;
+            }
+            case "set" : {
+                manageSet(al);
+                break;
+            }
+            case "show" : {
+                manageShow(al);
+                break;
+            }
+            default: {
+                System.out.println("Unsupported command. Try 'help' for help with usage.");
+                break;
+            }
         }
-        else {
-            //Interactive mode
-//            processLine(al);
-//            while(true) {
-//                BufferedReader
-//            }
+        launchInteractive();
+    }
+
+    private static void launchInteractive() {
+        String line = gatherLine();
+        String[] asArr = line.split(" ");
+        ArrayList<String> al = new ArrayList<>(Arrays.asList(asArr));
+        interactiveMode(al);
+    }
+
+    private static void manageSet(ArrayList<String> al) {
+        if(al.size()<3) {
+            System.out.println("You need to specify an value for the option you are setting.");
+            skipOrEnd();
+        }
+        switch (al.get(1)) {
+            case "mode" : {
+                mode = al.get(2);
+                break;
+            }
+            case "count" : {
+                setCount(al.get(2));
+                break;
+            }
+            case "html" : {
+                setHtml(al.get(2));
+                break;
+            }
+            case "library" : {
+                library = al.get(2);
+                break;
+            }
+            default : {
+                System.out.println("Incorrect option for set");
+                System.out.println("Valid options are: \nmode\ncount\nhtml\nlibrary");
+                skipOrEnd();
+                break;
+            }
         }
     }
 
+    private static void manageShow(ArrayList<String> al) {
+        String ans = "";
+        if(al.size()<2) {
+            ans += "Mode: " + mode + "\nCount: " + count + "\nHTML: " + html + "\nLibrary: " + library;
+        }
+        switch (al.get(1)) {
+            case "mode" : {
+                if(mode==null) {
+                    System.out.println("Not set yet.");
+                }
+                else {
+                    ans += mode;
+                }
+                break;
+            }
+            case "count" : {
+                if(count==null) {
+                    System.out.println("Not set yet.");
+                }
+                else {
+                    ans += count;
+                }
+                break;
+            }
+            case "html" : {
+                if(html==null) {
+                    System.out.println("Not set yet.");
+                }
+                else {
+                    ans += html;
+                }
+                break;
+            }
+            case "library" : {
+                if(library==null) {
+                    System.out.println("Not set yet.");
+                }
+                else {
+                    ans += library;
+                }
+                break;
+            }
+            default : {
+                System.out.print("Incorrect option for show");
+                System.out.println("Valid options are: \nmode\ncount\nhtml\nlibrary or the command run as just 'show' to display all the options");
+                skipOrEnd();
+                break;
+            }
+        }
+        System.out.print(ans);
+    }
+
+
+    private static String gatherLine() {
+        String retVal = "";
+        try {
+            retVal =  br.readLine();
+        }
+        catch (IOException ie) {
+            System.out.println("Exception while trying to get input. Program will exit");
+            System.exit(1);
+        }
+        return retVal.trim();
+    }
+
     private static void processCommand(ArrayList<String> al) {
-        String library = null;
-        Boolean html = false;
-        Integer count = null;
-        String outfile = null;
-        String mode = null;
-
-
-
 
         //Check if user wants to use a library
         int idx1 = al.indexOf("--library");
@@ -80,16 +234,16 @@ class Solution {
         else if(idx2>0) {
             chkIdx = idx2+1;
         }
-        else {
+        else if(commandMode) {
             //Display available libraries
             displayLibraries();
         }
         if(chkIdx<al.size()) {
             library = al.get(chkIdx);
         }
-        else {
+        else if(commandMode){
             System.out.println("No library specified");
-            System.exit(0);
+            skipOrEnd();
         }
 
 
@@ -105,13 +259,7 @@ class Solution {
         }
         if(chkIdx<al.size()) {
             String val = al.get(chkIdx);
-            try {
-                count = Integer.parseInt(val);
-            }
-            catch (Exception e) {
-                System.out.println("Count needs to be a number");
-                System.exit(0);
-            }
+            setCount(val);
         }
 
         //Check if user wants to specify html mode or no
@@ -126,13 +274,7 @@ class Solution {
         }
         if(chkIdx<al.size()) {
             String val = al.get(chkIdx);
-            try {
-                html = Boolean.parseBoolean(val);
-            }
-            catch (Exception e) {
-                System.out.println("Html needs to be a true/false value");
-                System.exit(0);
-            }
+            setHtml(val);
         }
 
         //Check if user wants to specify a outfile filename
@@ -166,6 +308,26 @@ class Solution {
         generateText(library, mode, count, html, outfile);
     }
 
+    private static void setCount(String S) {
+        try {
+            count = Integer.parseInt(S);
+        }
+        catch (Exception e) {
+            System.out.println("Count needs to be a number");
+            skipOrEnd();
+        }
+    }
+
+    private static void setHtml(String S) {
+        try {
+            html = Boolean.parseBoolean(S);
+        }
+        catch (Exception e) {
+            System.out.println("Html needs to be a true/false value");
+            skipOrEnd();
+        }
+    }
+
 
     private static void generateText(String library, String mode, Integer count, Boolean html, String filename) {
         String ans = "";
@@ -179,7 +341,7 @@ class Solution {
             default :
                 System.out.println("Library unsupported");
                 displayLibraries();
-                System.exit(0);
+                skipOrEnd();
                 break;
         }
 
@@ -187,20 +349,25 @@ class Solution {
         if(count == null) {
             System.out.println("Count must be specified");
             displayCountHelp();
-            System.exit(0);
+            skipOrEnd();
         }
 
         //check count is in range
         if((count < 1) || (count > 5)) {
             System.out.println("Count must be in the range 1-5");
-            System.exit(0);
+            skipOrEnd();
         }
 
         //check that mode is specified
         if(mode == null) {
             System.out.println("Mode must be specified");
             displayModeHelp();
-            System.exit(0);
+            skipOrEnd();
+        }
+
+        //if html null set to false
+        if(html == null) {
+            html = false;
         }
 
         switch (mode) {
@@ -216,7 +383,7 @@ class Solution {
             default:
                 System.out.println("Unsupported mode");
                 displayModeHelp();
-                System.exit(0);
+                skipOrEnd();
                 break;
         }
 
@@ -304,6 +471,11 @@ class Solution {
         System.out.println("Specify a filename using --outfile or -o followed by the filename");
     }
 
+    private static void displayExitMessage() {
+        System.out.println("Goodbye!");
+        System.exit(0);
+    }
+
     private static void displayVersion() {
         System.out.println("Version 0.0.3");
     }
@@ -312,7 +484,7 @@ class Solution {
         File tempFile = new File(filename);
         if(tempFile.exists()) {
             System.out.println("File: " + filename + " already exists, try a different filename");
-            System.exit(0);
+            skipOrEnd();
         }
         BufferedWriter fw = null;
         try {
@@ -322,6 +494,15 @@ class Solution {
         }
         catch (Exception e) {
             System.out.println("Exception while trying to write to file. Exception:\n" + e);
+        }
+    }
+
+    private static void skipOrEnd() {
+        if(commandMode) {
+            System.exit(-1);
+        }
+        else {
+            launchInteractive();
         }
     }
 }
