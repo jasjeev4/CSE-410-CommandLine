@@ -1,3 +1,6 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -216,7 +219,13 @@ class Solution {
                 System.exit(0);
                 break;
         }
-        System.out.println(ans);
+
+        if(filename==null) {
+            System.out.println(ans);
+        }
+        else {
+            writeFile(ans, filename);
+        }
     }
 
     private static String getParagraphs(String S, int count, boolean html) {
@@ -291,7 +300,28 @@ class Solution {
         System.out.println("Supported modes are: words, bullets and paragraphs");
     }
 
+    private static void displayFileelp() {
+        System.out.println("Specify a filename using --outfile or -o followed by the filename");
+    }
+
     private static void displayVersion() {
         System.out.println("Version 0.0.3");
+    }
+
+    private static void writeFile(String S, String filename) {
+        File tempFile = new File(filename);
+        if(tempFile.exists()) {
+            System.out.println("File: " + filename + " already exists, try a different filename");
+            System.exit(0);
+        }
+        BufferedWriter fw = null;
+        try {
+            fw = new BufferedWriter((new FileWriter(filename)));
+            fw.write(S);
+            fw.close();
+        }
+        catch (Exception e) {
+            System.out.println("Exception while trying to write to file. Exception:\n" + e);
+        }
     }
 }
