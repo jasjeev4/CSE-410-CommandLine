@@ -463,7 +463,7 @@ class Solution {
         System.out.println("Supported modes are: words, bullets and paragraphs");
     }
 
-    private static void displayFileelp() {
+    private static void displayFileHelp() {
         System.out.println("Specify a filename using --outfile or -o followed by the filename");
     }
 
