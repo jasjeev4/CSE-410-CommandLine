@@ -14,15 +14,10 @@ class Solution {
             "Sit amet nulla facilisi morbi tempus. Nunc sed augue lacus viverra vitae congue eu consequat. Scelerisque mauris pellentesque pulvinar pellentesque habitant morbi. Duis convallis convallis tellus id interdum velit laoreet id donec. Integer malesuada nunc vel risus commodo. Vitae proin sagittis nisl rhoncus mattis rhoncus. Odio tempor orci dapibus ultrices in. Tincidunt praesent semper feugiat nibh sed pulvinar proin gravida hendrerit. Placerat orci nulla pellentesque dignissim enim sit. Est lorem ipsum dolor sit amet consectetur. Tempus quam pellentesque nec nam aliquam sem et tortor consequat. Consequat mauris nunc congue nisi. Dui sapien eget mi proin sed libero enim sed. Quis hendrerit dolor magna eget. In metus vulputate eu scelerisque felis imperdiet. Sit amet risus nullam eget felis eget nunc. Et netus et malesuada fames ac turpis egestas sed.";
 
     private static String anguish = "Wants pawn term dare worsted ladle gull hoe hat search putty yowler coils debt pimple colder Guilty Looks. Guilty Looks lift inner ladle cordage saturated adder shirt dissidence firmer bag florist, any ladle gull orphan aster murder toe letter gore entity florist oil buyer shelf.\n" +
-            "\n" +
             "\"Guilty Looks!\" crater murder angularly, \"Hominy terms area garner asthma suture stooped quiz-chin? Goiter door florist? Sordidly NUT!\"\n" +
-            "\n" +
             "\"Wire nut, murder?\" wined Guilty Looks, hoe dint peony tension tore murder's scaldings.\n" +
-            "\n" +
             "\"Cause dorsal lodge an wicket beer inner florist hoe orphan molasses pimple. Ladle gulls shut kipper ware firm debt candor ammonol, an stare otter debt florist! Debt florist's mush toe dentures furry ladle gull!\"\n" +
-            "\n" +
             "Wail, pimple oil-wares wander doe wart udder pimple dum wampum toe doe. Debt's jest hormone nurture. Wan moaning, Guilty Looks dissipater murder, an win entity florist.\n" +
-            "\n" +
             "Fur lung, disk avengeress gull wetter putty yowler coils cam tore morticed ladle cordage inhibited buyer hull firmly off beers—Fodder Beer (home pimple, fur oblivious raisins, coiled \"Brewing\"), Murder Beer, an Ladle Bore Beer. Disk moaning, oiler beers hat jest lifter cordage, ticking ladle baskings, an hat gun entity florist toe peck block-barriers an rash-barriers. Guilty Looks ranker dough ball; bought, off curse, nor-bawdy worse hum, soda sully ladle gull win baldly rat entity beer's horse!";
 
     public static void main(String args[]) {
@@ -64,7 +59,7 @@ class Solution {
 
     private static void processCommand(ArrayList<String> al) {
         String library = null;
-        Boolean html = null;
+        Boolean html = false;
         Integer count = null;
         String outfile = null;
         String mode = null;
@@ -177,33 +172,126 @@ class Solution {
                 break;
             case "anguish" :
                 ans = anguish;
+                break;
             default :
                 System.out.println("Library unsupported");
+                displayLibraries();
+                System.exit(0);
                 break;
+        }
+
+        //check that count is specified
+        if(count == null) {
+            System.out.println("Count must be specified");
+            displayCountHelp();
+            System.exit(0);
+        }
+
+        //check count is in range
+        if((count < 1) || (count > 5)) {
+            System.out.println("Count must be in the range 1-5");
+            System.exit(0);
+        }
+
+        //check that mode is specified
+        if(mode == null) {
+            System.out.println("Mode must be specified");
+            displayModeHelp();
+            System.exit(0);
         }
 
         switch (mode) {
             case "words" :
+                ans = getWords(ans, count, html);
                 break;
             case "bullets" :
+                ans = getBullets(ans, count, html);
                 break;
             case "paragraphs" :
-
-                ans = getParagraphs(ans, count);
+                ans = getParagraphs(ans, count, html);
+                break;
+            default:
+                System.out.println("Unsupported mode");
+                displayModeHelp();
+                System.exit(0);
                 break;
         }
         System.out.println(ans);
     }
 
+    private static String getParagraphs(String S, int count, boolean html) {
+        String[] paragraphs = S.split("\n");
+        String ans = "";
+        for(int i=0; i<count; i++) {
+            if(html) {
+                ans += "<p>" + paragraphs[i] + "</p>\n";
+            }
+            else {
+                ans += "\t" + paragraphs[i];
+                if(i<(count-1)) {
+                    ans += "\n";
+                }
+            }
+        }
+        return ans;
+    }
+
+    private static String getWords(String S, int count, boolean html) {
+        String[] words = S.split(" ");
+        String ans = "";
+        for(int i=0; i<count; i++) {
+            String line = words[i].replaceAll("[^a-zA-Z]","");
+            if(html) {
+                ans += "<h1>" + line + "</h1>\n";
+            }
+            else {
+                ans += line + "\n";
+            }
+        }
+        return ans;
+    }
+
+    private static String getBullets(String S, int count, boolean html) {
+        String[] bullets = S.split("[.]");
+        String ans = "";
+        for(int i=0; i<count; i++) {
+            if(html) {
+                ans += "\t<li>\n\t\t" + bullets[i].trim() + "\n\t</li>\n";
+            }
+            else {
+                ans = ans + "• " + bullets[i].trim() + "\n";
+            }
+        }
+        if(html) {
+            ans = "<ul>\n" + ans + "</ul>";
+        }
+        return ans;
+    }
+
     private static void displayLibraries() {
-        System.out.println("Supported libraries: lorem");
+        System.out.println("Supported libraries: lorem and anguish");
     }
 
     private static void displayHelp() {
-        System.out.println("No help for you");
+        System.out.println("This program supports generate mode as well as interactive mode.");
+        System.out.println("Use generate mode by specifying the flag --generate or -g");
+        System.out.println("Here are the flags available to use in generate mode:");
+        System.out.println("Specify a library using --library or -l followed by the library name.");
+        displayLibraries();
+        displayCountHelp();
+        displayModeHelp();
+    }
+
+    private static void displayCountHelp() {
+        System.out.println("Specify an integer count 1-5 using --count or -c");
+    }
+
+    private static void displayModeHelp() {
+        System.out.println("Specify a mode using --mode or -m followed by the mode");
+        System.out.println("Supported modes are: words, bullets and paragraphs");
     }
 
     private static void displayVersion() {
-        System.out.println("Version 0.0.1");
+        System.out.println("Version 0.0.3");
     }
 }
